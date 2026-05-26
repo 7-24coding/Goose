@@ -1,18 +1,24 @@
 allprojects {
     buildscript {
         repositories {
-            maven { url = uri("https://maven.myket.ir/") }
-            maven { url = uri("https://maven.devneeds.ir/") }
-            maven { url = uri("https://gradle.devneeds.ir/mvn") }
+            val isGithubActions = System.getenv("GITHUB_ACTIONS") == "true"
+            if (!isGithubActions) {
+                maven { url = uri("https://maven.myket.ir/") }
+                maven { url = uri("https://maven.devneeds.ir/") }
+                maven { url = uri("https://gradle.devneeds.ir/mvn") }
+            }
             google()
             mavenCentral()
         }
     }
     
     repositories {
-        maven { url = uri("https://maven.myket.ir/") }
-        maven { url = uri("https://maven.devneeds.ir/") }
-        maven { url = uri("https://gradle.devneeds.ir/mvn") }
+        val isGithubActions = System.getenv("GITHUB_ACTIONS") == "true"
+        if (!isGithubActions) {
+            maven { url = uri("https://maven.myket.ir/") }
+            maven { url = uri("https://maven.devneeds.ir/") }
+            maven { url = uri("https://gradle.devneeds.ir/mvn") }
+        }
         google()
         mavenCentral()
     }
