@@ -12,15 +12,6 @@ pluginManagement {
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
-        val isGithubActions = System.getenv("GITHUB_ACTIONS") == "true"
-        if (!isGithubActions) {
-            // Mirrors
-            maven { url = uri("https://maven.myket.ir") }
-            maven { url = uri("https://maven.devneeds.ir") }
-            maven { url = uri("https://gradle.devneeds.ir/mvn") }
-        }
-
-        // Fallbacks
         google()
         gradlePluginPortal()
         mavenCentral()
@@ -36,14 +27,6 @@ plugins {
 
 dependencyResolutionManagement {
     repositories {
-        val isGithubActions = System.getenv("GITHUB_ACTIONS") == "true"
-        if (!isGithubActions) {
-            // Mirrors
-            maven { url = uri("https://maven.myket.ir") }
-            maven { url = uri("https://maven.devneeds.ir") }
-        }
-        
-        // Fallbacks
         google()
         mavenCentral()
     }
