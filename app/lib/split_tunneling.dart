@@ -55,7 +55,7 @@ class _SplitTunnelingScreenState extends State<SplitTunnelingScreen> {
       });
 
       // Fetch apps with icons (excludeSystemApps = true, withIcon = true)
-      final List<AppInfo> apps = await InstalledApps.getInstalledApps(true, true);
+      final List<AppInfo> apps = await InstalledApps.getInstalledApps(excludeSystemApps: true, withIcon: true);
       // Sort alphabetically
       apps.sort((a, b) => (a.name ?? "").toLowerCase().compareTo((b.name ?? "").toLowerCase()));
       
