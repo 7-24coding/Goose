@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:installed_apps/installed_apps.dart';
+import 'package:installed_apps/app_info.dart';
 
 class SplitTunnelingScreen extends StatefulWidget {
   const SplitTunnelingScreen({super.key});
@@ -10,8 +11,7 @@ class SplitTunnelingScreen extends StatefulWidget {
 }
 
 class _SplitTunnelingScreenState extends State<SplitTunnelingScreen> {
-  static const platform = MethodChannel('com.goose.vpn/control');
-  List<Map<String, String>> _installedApps = [];
+  List<AppInfo> _installedApps = [];
   Set<String> _excludedApps = {};
   bool _isLoading = true;
   String _searchQuery = '';
@@ -48,17 +48,20 @@ class _SplitTunnelingScreenState extends State<SplitTunnelingScreen> {
         "ir.mci.myhamrah",
         "com.digikala.tarh",
         "com.torob.android"
-      ]; // Default hardcoded list
+      ]; 
       
       setState(() {
         _excludedApps = savedExcluded.toSet();
       });
 
-      final List<dynamic> apps = await platform.invokeMethod('getInstalledApps');
+      // Fetch apps with icons (excludeSystemApps = true, withIcon = true)
+      final List<AppInfo> apps = await InstalledApps.getInstalledApps(true, true);
+      // Sort alphabetically
+      apps.sort((a, b) => (a.name ?? "").toLowerCase().compareTo((b.name ?? "").toLowerCase()));
       
       if (mounted) {
         setState(() {
-          _installedApps = apps.map((app) => Map<String, String>.from(app)).toList();
+          _installedApps = apps;
           _isLoading = false;
         });
       }
@@ -93,7 +96,7 @@ class _SplitTunnelingScreenState extends State<SplitTunnelingScreen> {
   @override
   Widget build(BuildContext context) {
     final filteredApps = _installedApps.where((app) {
-      final appName = app['appName']?.toLowerCase() ?? '';
+      final appName = app.name?.toLowerCase() ?? '';
       return appName.contains(_searchQuery.toLowerCase());
     }).toList();
 
@@ -143,13 +146,16 @@ class _SplitTunnelingScreenState extends State<SplitTunnelingScreen> {
                     itemCount: filteredApps.length,
                     itemBuilder: (context, index) {
                       final app = filteredApps[index];
-                      final packageName = app['packageName'] ?? '';
-                      final appName = app['appName'] ?? packageName;
+                      final packageName = app.packageName ?? '';
+                      final appName = app.name ?? packageName;
                       final isExcluded = _excludedApps.contains(packageName);
 
                       return CheckboxListTile(
                         title: Text(appName, style: const TextStyle(color: Colors.white)),
                         subtitle: Text(packageName, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                        secondary: app.icon != null 
+                            ? Image.memory(app.icon!, width: 40, height: 40)
+                            : const Icon(Icons.android, color: Colors.green, size: 40),
                         value: isExcluded,
                         activeColor: Colors.cyanAccent,
                         checkColor: Colors.black,
@@ -165,3 +171,4 @@ class _SplitTunnelingScreenState extends State<SplitTunnelingScreen> {
     );
   }
 }
+
