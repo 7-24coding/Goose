@@ -184,11 +184,21 @@ class _VpnHomeScreenState extends State<VpnHomeScreen> with SingleTickerProvider
           if (delta > 0) {
             _accumulatedDailyRequests += delta;
             _lastDailyCount = dailyCount;
+          } else if (dailyCount < _lastDailyCount) {
+            // Backend daily count reset
+            _lastDailyCount = dailyCount;
+          }
+
+          // If the server-reported script quota is less than our accumulated UI quota,
+          // it means the script quota was reset (e.g., 24 hours passed).
+          // We only check for > 0 to avoid resetting during the first second of connection before the first response.
+          if (scriptCount > 0 && scriptCount < _accumulatedDailyRequests) {
+            _accumulatedDailyRequests = scriptCount;
           }
 
           final int displayQuota = scriptCount > _accumulatedDailyRequests ? scriptCount : _accumulatedDailyRequests;
           
-          if (displayQuota > _accumulatedDailyRequests || delta > 0) {
+          if (displayQuota != _accumulatedDailyRequests || delta > 0) {
             _accumulatedDailyRequests = displayQuota;
             final prefs = await SharedPreferences.getInstance();
             await prefs.setInt('accumulated_daily_requests', _accumulatedDailyRequests);
